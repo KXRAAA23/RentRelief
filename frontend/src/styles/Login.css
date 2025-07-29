@@ -1,0 +1,37 @@
+.login-container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 300px;
+  margin: 2rem auto;
+}
+
+.login-input {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.login-button {
+  padding: 10px;
+  font-weight: bold;
+  background: linear-gradient(90deg, #4B6CB7, #182848);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.login-button:hover {
+  opacity: 0.9;
+}
+
+
+.login-error {
+  color: red;
+  margin-top: 0.5rem;
+}
