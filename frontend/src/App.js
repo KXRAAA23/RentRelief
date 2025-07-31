@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import EditListing from "./pages/EditListing";
 
 import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
@@ -30,6 +31,7 @@ function App() {
           <Route path="/login" element={<Login setAuthToken={setAuthToken} />} />
           <Route path="/register" element={<Register />} />
           {/*<Route path="/listing/:id" element={<ListingDetails />} />*/}
+          <Route path="/edit-listing/:id" element={<EditListing />} />
 
           <Route
             path="/listing/dashboard"

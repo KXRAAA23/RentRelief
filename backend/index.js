@@ -4,17 +4,29 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const mime = require('mime-types');
 
 const listingRoutes = require("./routes/listings");
+const authRoutes = require("./routes/auth");
+const { fileURLToPath } = require("url");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true
+}));
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg')) {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    }
+  }
+}));
 app.use("/api/listings", listingRoutes);
+app.use("/api/auth", authRoutes);
 
 const mongoURI = process.env.MONGO_URI;
 

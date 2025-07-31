@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "../styles/AddListing.css";
 import axios from "axios";
 
-
 const stateCityMap = {
   Maharashtra: ["Mumbai", "Pune", "Nagpur"],
   Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
@@ -13,6 +12,7 @@ function AddListing() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    rent:" ",
     state: "",
     city: "",
   });
@@ -69,15 +69,17 @@ const handleSubmit = async (e) => {
   const payload = new FormData();
   payload.append("title", formData.title);
   payload.append("description", formData.description);
+  payload.append("rent", formData.rent);
   payload.append("state", formData.state);
   payload.append("city", formData.city);
   payload.append("image", image);
 
   try {
     console.log("Submitting form...");
-    const res = await axios.post("http://localhost:5000/api/listings/add", payload, {
+    const res = await axios.post("http://localhost:5000/api/listings", payload, {
       headers: {
         "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${localStorage.getItem("token")}`
       },
     });
 
@@ -104,6 +106,17 @@ const handleSubmit = async (e) => {
             value={formData.title}
             onChange={handleChange}
           />
+        </label>
+        <label>
+          Monthly Rent (₹):
+            <input
+              type="number"
+              name="rent"
+              value={formData.rent || ""}
+              onChange={handleChange}
+              placeholder="Enter rent amount"
+              required
+            />
         </label>
 
         <label>

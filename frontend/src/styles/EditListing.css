@@ -1,0 +1,21 @@
+.edit-listing {
+  max-width: 600px;
+  margin: auto;
+  padding: 2rem;
+}
+
+.edit-listing-form input,
+.edit-listing-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  font-size: 16px;
+}
+
+.edit-listing-form button {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+}

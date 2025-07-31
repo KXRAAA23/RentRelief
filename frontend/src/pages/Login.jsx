@@ -31,14 +31,12 @@ function Login({ setAuthToken }) {
         return;
       }
 
-      // Update React state (this hides Navbar & shows Sidebar)
       setAuthToken(data.token);
 
-      // Still store role & name
       localStorage.setItem("role", data.user.role);
       localStorage.setItem("name", data.user.name);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirect based on role
       if (data.user.role === "listing") {
         navigate("/listing/dashboard");
       } else {
