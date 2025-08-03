@@ -42,16 +42,15 @@ router.post('/', verifyToken, upload.single('image'), async (req, res) => {
 });
 
 
-router.get("/my", verifyToken, async (req, res) => {
+router.get('/my', verifyToken, async (req, res) => {
   try {
-    const userId = req.user.id;
-    const listings = await Listing.find({ userID: userId });
+    const listings = await Listing.find({ userID: req.user.id }).populate('userID', 'name email');
     res.json(listings);
   } catch (err) {
-    console.error("Error fetching listings:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 router.get('/user/:userID', async (req, res) => {
   const { userID } = req.params;
@@ -68,6 +67,23 @@ router.get('/user/:userID', async (req, res) => {
     res.status(500).json({ error: 'Server error while fetching listings' });
   }
 });
+
+router.get('/:id', verifyToken, async (req, res) => {
+  try {
+    const listing = await Listing.findById(req.params.id);
+    if (!listing) return res.status(404).json({ error: "Listing not found" });
+
+    if (listing.userID.toString() !== req.user.id) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    res.json(listing);
+  } catch (error) {
+    console.error('Error fetching listing by ID:', error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 router.put("/:id", async (req, res) => {
   try {

@@ -11,18 +11,19 @@ useEffect(() => {
   fetchListings();
 }, []);
 
-  const fetchListings = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/listings/my",{
-        headers:{
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        }
-      });
-      setListings(res.data);
-    } catch (err) {
-      console.error("Failed to fetch listings:", err.message);
-    }
-  };
+const fetchListings = async () => {
+  try {
+    const res = await axios.get("http://localhost:5000/api/listings/my", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    setListings(res.data);
+  } catch (err) {
+    console.error("Failed to fetch listings:", err.message);
+  }
+};
+
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this listing?")) {

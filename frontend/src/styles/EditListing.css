@@ -1,21 +1,50 @@
 .edit-listing {
   max-width: 600px;
-  margin: auto;
+  margin: 2rem auto;
   padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.edit-listing h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  color: #333;
 }
 
 .edit-listing-form input,
-.edit-listing-form textarea {
+.edit-listing-form textarea,
+.edit-listing-form select {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-bottom: 1rem;
-  font-size: 16px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+}
+
+.edit-listing-form input:focus,
+.edit-listing-form textarea:focus,
+.edit-listing-form select:focus {
+  border-color: #4caf50;
+  outline: none;
 }
 
 .edit-listing-form button {
   background-color: #4caf50;
   color: white;
-  padding: 10px 16px;
+  padding: 12px 20px;
   border: none;
+  border-radius: 8px;
+  font-size: 16px;
   cursor: pointer;
+  width: 100%;
+  transition: background-color 0.2s;
+}
+
+.edit-listing-form button:hover {
+  background-color: #43a047;
 }

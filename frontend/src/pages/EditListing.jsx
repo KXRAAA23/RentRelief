@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/EditListing.css"; // Optional
+import "../styles/EditListing.css";
+
+const stateCityMap = {
+  Maharashtra: ["Mumbai", "Pune", "Nagpur"],
+  Gujarat: ["Ahmedabad", "Surat", "Vadodara"],
+  Karnataka: ["Bengaluru", "Mysore", "Mangalore"],
+};
 
 function EditListing() {
   const { id } = useParams();
@@ -10,38 +16,54 @@ function EditListing() {
     title: "",
     description: "",
     rent: "",
-    city: "",
     state: "",
+    city: "",
   });
+  const [imagePreview, setImagePreview] = useState(null);
 
-  useEffect(() => {
-    fetchListing();
-  }, []);
-
+useEffect(() => {
   const fetchListing = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/listings/${id}`);
+      const res = await axios.get(`http://localhost:5000/api/listings/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
       setListingData(res.data);
+      if (res.data.image) {
+        setImagePreview(`http://localhost:5000${res.data.image}`);
+      }
     } catch (err) {
       console.error("Failed to fetch listing:", err.message);
     }
   };
 
+  fetchListing();
+}, [id]);
+
+
   const handleChange = (e) => {
-    setListingData({
-      ...listingData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    setListingData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/listings/${id}`, listingData);
+      await axios.put(
+        `http://localhost:5000/api/listings/${id}`,
+        listingData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       alert("Listing updated successfully!");
-      navigate("/listing-dashboard");
+      navigate("/listing/dashboard");
     } catch (err) {
       console.error("Update failed:", err.message);
+      alert("Update failed");
     }
   };
 
@@ -72,22 +94,56 @@ function EditListing() {
           onChange={handleChange}
           required
         />
-        <input
-          type="text"
+
+        <label>State:</label>
+        <select
+          name="state"
+          value={listingData.state}
+          onChange={(e) => {
+            handleChange(e);
+            setListingData((prev) => ({ ...prev, city: "" }));
+          }}
+          required
+        >
+          <option value="">Select State</option>
+          {Object.keys(stateCityMap).map((state) => (
+            <option key={state} value={state}>
+              {state}
+            </option>
+          ))}
+        </select>
+
+        <label>City:</label>
+        <select
           name="city"
-          placeholder="City"
           value={listingData.city}
           onChange={handleChange}
+          disabled={!listingData.state}
           required
-        />
-        <input
-          type="text"
-          name="state"
-          placeholder="State"
-          value={listingData.state}
-          onChange={handleChange}
-          required
-        />
+        >
+          <option value="">Select City</option>
+          {listingData.state &&
+            stateCityMap[listingData.state].map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+        </select>
+
+        {imagePreview && (
+          <img
+            src={imagePreview}
+            alt="Preview"
+            style={{
+              width: "200px",
+              height: "150px",
+              objectFit: "cover",
+              marginTop: "1rem",
+              borderRadius: "8px",
+            }}
+          />
+        )}
+
         <button type="submit">Update Listing</button>
       </form>
     </div>
