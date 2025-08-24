@@ -7,23 +7,20 @@ function ListingDashboard() {
   const [listings, setListings] = useState([]);
   const navigate = useNavigate();
 
-useEffect(() => {
-  fetchListings();
-}, []);
+  useEffect(() => {
+    fetchListings();
+  }, []);
 
-const fetchListings = async () => {
-  try {
-    const res = await axios.get("http://localhost:5000/api/listings/my", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-    setListings(res.data);
-  } catch (err) {
-    console.error("Failed to fetch listings:", err.message);
-  }
-};
-
+  const fetchListings = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/listings/my", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setListings(res.data);
+    } catch (err) {
+      console.error("Failed to fetch listings:", err.message);
+    }
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this listing?")) {
@@ -48,18 +45,22 @@ const fetchListings = async () => {
         {listings.map((listing) => (
           <div className="listing-card" key={listing._id}>
             {listing.image && (
-              <img
-                src={`http://localhost:5000${listing.image}`}
-                alt="listing"
-                  />
+              <img src={`http://localhost:5000${listing.image}`} alt="listing" />
             )}
             <h3>{listing.title}</h3>
             <p>Rent: ₹{listing.rent}</p>
-            <p>Location: {listing.city}, {listing.state}</p>
+            <p>Location: {listing.station}, {listing.area}</p>
 
             <div className="listing-actions">
-              <button onClick={() => navigate(`/edit-listing/${listing._id}`)}>Edit</button>
-              <button onClick={() => handleDelete(listing._id)} className="delete-btn">Delete</button>
+              <button onClick={() => navigate(`/listing/${listing._id}`)}>
+                View Details
+              </button>
+              <button onClick={() => navigate(`/edit-listing/${listing._id}`)}>
+                Edit
+              </button>
+              <button onClick={() => handleDelete(listing._id)} className="delete-btn">
+                Delete
+              </button>
             </div>
           </div>
         ))}

@@ -47,37 +47,50 @@ function Login({ setAuthToken }) {
     }
   };
 
-  return (
-    <div className="login-container">
-      <h2>Login to RentRelief</h2>
-      <form onSubmit={handleSubmit} className="login-form">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          className="login-input"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          className="login-input"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <button type="submit" className="login-button">Login</button>
-        {error && <p className="login-error">{error}</p>}
-        <p>
-          New user?{" "}
-          <a href="/register" className="login-link">
-            Register here
-          </a>
-        </p>
-      </form>
+return (
+  <div className="login-page">
+    <div className="login-left">
+      <div className="overlay">
+        <h1>Welcome to RentRelief</h1>
+        <p>Find and list rentals with ease. Your comfort, our priority.</p>
+      </div>
     </div>
-  );
+
+    <div className="login-right">
+      <div className="login-form-container">
+        <h2>Sign in</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            className="login-input"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            className="login-input"
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit" className="login-button">Sign in</button>
+          {error && <p className="login-error">{error}</p>}
+          <div className="login-links">
+            <a href="/forgot-password" className="forgot-link">Forgot your password?</a>
+            <p>
+              Don’t have an account?{" "}
+              <a href="/register" className="login-link">Sign up</a>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+);
+
 }
 
 export default Login;

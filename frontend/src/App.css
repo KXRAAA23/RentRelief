@@ -28,6 +28,10 @@ h1, h2, h3 {
   padding: 1rem;
   width: 250px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+} 
+.card:hover{
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 .main-content {
   margin-left: 220px; 

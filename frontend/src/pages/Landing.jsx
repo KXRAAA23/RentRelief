@@ -17,22 +17,22 @@ function Landing() {
   const sampleListings = [
     {
       id: 1,
-      title: "Cozy PG near Churchgate",
-      city: "Mumbai",
+      title: "Cozy PG near Jai Hind College",
+      city: "Churchgate",
       rent: 20000,
       image: "/images/churchgate.png",
     },
     {
       id: 2,
-      title: "Shared Flat near Pune University",
-      city: "Pune",
+      title: "Shared Flat near NMIMS",
+      city: "Vile Parle",
       rent: 10000,
       image: "/images/pune.png",
     },
     {
       id: 3,
-      title: "Single Room in Andheri West",
-      city: "Mumbai",
+      title: "Single Room near Goregaon Sports Club",
+      city: "Goregaon",
       rent: 12000,
       image: "/images/andheri.png",
     },
@@ -91,7 +91,7 @@ function Landing() {
                 <h3>{listing.title}</h3>
                 <p>City: {listing.city}</p>
                 <p>Rent: ₹{listing.rent}/month</p>
-                <Link to={`/listing/${listing.id}`}>
+                <Link to={`/renting/dashboard`}>
                   <button
                     style={{
                       marginTop: "0.75rem",

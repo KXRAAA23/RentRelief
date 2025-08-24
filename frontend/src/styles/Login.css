@@ -1,37 +1,120 @@
-.login-container {
+.login-page {
+  display: flex;
+  width: 100%;          
+}
+.auth-page {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+}
+
+.login-left {
+  flex: 1;
+  height: 100vh;
+  margin: 0;           
+  padding: 0;
+  background: url("../assets/login.png") center center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+
+.login-left .overlay {
+  background: rgba(255, 255, 255, 0.15); 
+  backdrop-filter: blur(10px); 
+  -webkit-backdrop-filter: blur(10px); 
+  border-radius: 12px;
   padding: 2rem;
   text-align: center;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.2); 
+  color: #fff;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2); 
+}
+
+.login-left .overlay:hover {
+  box-shadow: 0 8px 40px rgba(75,108,183,0.4);
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+}
+
+.login-left h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.login-left p {
+  font-size: 1.1rem;
+}
+
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+}
+
+.login-form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-form-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  width: 300px;
-  margin: 2rem auto;
 }
 
 .login-input {
   padding: 10px;
   font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .login-button {
-  padding: 10px;
-  font-weight: bold;
+  padding: 12px;
   background: linear-gradient(90deg, #4B6CB7, #182848);
   color: white;
   border: none;
+  border-radius: 4px;
+  font-weight: bold;
   cursor: pointer;
-  border-radius: 5px;
 }
 
 .login-button:hover {
   opacity: 0.9;
 }
 
-
 .login-error {
   color: red;
-  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.login-links {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.login-links a {
+  color: #4B6CB7;
+  text-decoration: none;
+}
+
+.login-links a:hover {
+  text-decoration: underline;
 }

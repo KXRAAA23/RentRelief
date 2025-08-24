@@ -1,0 +1,172 @@
+/* Filters */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.filters select,
+.filters input[type="range"] {
+  width: 130px;
+  padding: 6px;
+}
+
+.filters span {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.clear-filters-btn {
+  padding: 6px 10px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.apply-filters-btn {
+  padding: 6px 10px;
+  background-color: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Listing grid */
+.listing-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+/* Listing card */
+.listing-card {
+  width: 300px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.listing-card:hover {
+  transform: scale(1.02);
+}
+
+.listing-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid #ddd;
+}
+
+.listing-card h3 {
+  font-size: 1.3rem;
+  margin: 16px;
+}
+
+.listing-card p {
+  margin: 0 16px 10px 16px;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.listing-details {
+  margin: 0 16px 10px 16px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Listing actions */
+.listing-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px 16px 16px;
+}
+
+.listing-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1976d2;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.listing-actions button:hover {
+  background-color: #1565c0;
+}
+
+.delete-btn {
+  background-color: #e53935;
+}
+
+.delete-btn:hover {
+  background-color: #c62828;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .listing-card {
+    width: 90%;
+  }
+  .filters {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb; /* light gray track */
+  border-radius: 5px;
+  outline: none;
+  margin: 10px 0;
+  transition: background 0.3s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4338ca; /* same as your button */
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  transition: background 0.3s, transform 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: #182848; /* darker shade on hover */
+  transform: scale(1.1);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4f46e5; /* same as your button */
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  transition: background 0.3s, transform 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  background: #4338ca; /* darker shade on hover */
+  transform: scale(1.1);
+}

@@ -1,50 +1,87 @@
 .edit-listing {
-  max-width: 600px;
+  max-width: 500px;
   margin: 2rem auto;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #f9f9f9;
 }
 
 .edit-listing h2 {
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
-  color: #333;
+  margin-bottom: 1.2rem;
 }
 
-.edit-listing-form input,
-.edit-listing-form textarea,
-.edit-listing-form select {
+.edit-listing form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+.edit-listing input[type="text"],
+.edit-listing input[type="number"],
+.edit-listing select,
+.edit-listing input[type="file"],
+.edit-listing textarea {
   width: 100%;
-  padding: 12px;
+  padding: 0.5rem;
   margin-bottom: 1rem;
-  font-size: 15px;
+  border-radius: 5px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-.edit-listing-form input:focus,
-.edit-listing-form textarea:focus,
-.edit-listing-form select:focus {
-  border-color: #4caf50;
-  outline: none;
+.edit-listing textarea {
+  height: 150px; /* bigger description box */
+  resize: vertical; /* allow vertical resize */
 }
 
-.edit-listing-form button {
-  background-color: #4caf50;
+.edit-listing div label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 10px;
+  font-size: 14px;
+  background-color: #f0f0f0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.edit-listing div label:hover {
+  background-color: #e0e0e0;
+}
+
+.edit-listing input[type="checkbox"] {
+  transform: scale(1.1);
+}
+
+.edit-listing button {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(90deg, #4B6CB7, #182848);
   color: white;
-  padding: 12px 20px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
+  margin-top: 1rem;
+  border-radius: 6px;
   cursor: pointer;
   width: 100%;
-  transition: background-color 0.2s;
 }
 
-.edit-listing-form button:hover {
-  background-color: #43a047;
+.edit-listing button:hover {
+  background-color: #0056b3;
+}
+
+.edit-listing img {
+  display: block;
+  margin: 1rem auto;
+  border-radius: 8px;
+  object-fit: cover;
+  max-width: 100%;
+  max-height: 200px;
+}
+
+.error {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
 }
