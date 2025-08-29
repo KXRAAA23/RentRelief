@@ -1,0 +1,106 @@
+.profile-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.profile-container h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.profile-container p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.profile-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-container input,
+.profile-container select {
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.profile-container button {
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.profile-container button:hover {
+  opacity: 0.9;
+}
+
+.verify-button {
+  background-color: #2196f3;
+  color: white;
+  margin-top: 10px;
+}
+
+.documents-section {
+  margin-top: 20px;
+}
+
+.documents-section input {
+  margin-top: 10px;
+}
+
+.documents-section button {
+  margin-top: 5px;
+  background-color: #4caf50;
+  color: white;
+}
+
+.document-status {
+  margin: 10px 0;
+}
+
+/* Badge styles */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  margin-left: 10px;
+  text-transform: uppercase;
+}
+
+.badge-basic {
+  background-color: #4caf50; /* green */
+}
+
+.badge-trusted {
+  background-color: #591b52; /* blue */
+}
+
+.badge-premium {
+  background-color: #ff9800; /* orange */
+}
+
+.badge-pending {
+  background-color: #fbc02d; /* yellow */
+  color: #000;
+}
+
+.badge-rejected {
+  background-color: #f44336; /* red */
+}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaHome, FaList, FaPlus, FaSearch, FaSignOutAlt, FaClipboardList, FaEnvelope } from "react-icons/fa";
+import { FaHome, FaList, FaPlus, FaSearch, FaSignOutAlt, FaClipboardList, FaEnvelope, FaUser } from "react-icons/fa";
 import "../styles/Sidebar.css";
 import logo from "../assets/rentrelieflogo.png";
 
@@ -36,18 +36,26 @@ function Sidebar({ setAuthToken }) {
 
         {role === "listing" && (
           <>
+            <Link to="/profile"><FaUser /> <span>Profile</span></Link>
             <Link to="/listing/dashboard"><FaList /> <span>Dashboard</span></Link>
             <Link to="/add-listing"><FaPlus /> <span>Add Listing</span></Link>
             <Link to="/bookings"><FaClipboardList /> <span>Bookings</span></Link>
-            <Link to="/messages"><FaEnvelope /> <span>Messages</span></Link> {/* New link */}
+            <Link to="/messages"><FaEnvelope /> <span>Messages</span></Link> 
           </>
         )}
 
         {role === "renting" && (
           <>
+            <Link to="/profile"><FaUser /> <span>Profile</span></Link>
             <Link to="/renting/dashboard"><FaSearch /> <span>Browse</span></Link>
             <Link to="/bookings"><FaClipboardList /> <span>My Bookings</span></Link>
-            <Link to="/messages"><FaEnvelope /> <span>Messages</span></Link> {/* New link */}
+            <Link to="/messages"><FaEnvelope /> <span>Messages</span></Link> 
+          </>
+        )}
+
+        {role === "admin" && (
+          <>
+            <Link to="/approval"><FaUser /> <span>Approval</span></Link>
           </>
         )}
 

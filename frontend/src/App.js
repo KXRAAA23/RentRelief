@@ -14,6 +14,8 @@ import ListingDetails from "./pages/ListingDetails";
 import Bookings from "./pages/Bookings";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MessagesPage from "./pages/MessagesPage";
+import Profile from "./pages/Profile";
+import Approval from "./pages/Approval";
 
 function AppWrapper() {
   const [authToken, setAuthToken] = useState(localStorage.getItem("token"));
@@ -39,47 +41,48 @@ function AppWrapper() {
           <Route path="/listing/:id" element={<ListingDetails />} /> 
           <Route path="/edit-listing/:id" element={<EditListing />} />
 
-          <Route
-            path="/listing/dashboard"
-            element={
+          <Route path="/listing/dashboard" element={
               <ProtectedRoute>
                 <ListingDashboard />
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/add-listing"
-            element={
+          <Route path="/add-listing" element={
               <ProtectedRoute>
                 <AddListing />
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/renting/dashboard"
-            element={
+          <Route path="/renting/dashboard" element={
               <ProtectedRoute>
                 <RentingDashboard />
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/bookings"
-            element={
+          <Route path="/bookings" element={
               <ProtectedRoute>
-                <Bookings currentUser={{ 
-                  role: localStorage.getItem("role"), 
-                  name: localStorage.getItem("name") 
-                }} />
+                <Bookings currentUser={{role: localStorage.getItem("role"), name: localStorage.getItem("name")}}/>
               </ProtectedRoute>
             }
           />
 
-          <Route
-            path="/messages"
-            element={
+          <Route path="/messages" element={
               <ProtectedRoute>
                 <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/profile" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/approval" element={
+              <ProtectedRoute>
+                <Approval />
               </ProtectedRoute>
             }
           />

@@ -39,8 +39,12 @@ function Login({ setAuthToken }) {
 
       if (data.user.role === "listing") {
         navigate("/listing/dashboard");
-      } else {
+      } 
+      else if (data.user.role === "renting"){
         navigate("/renting/dashboard");
+      }
+      else {
+        navigate("/");
       }
     } catch {
       setError("Something went wrong. Try again.");
@@ -76,7 +80,7 @@ return (
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" className="login-button">Sign in</button>
+          <button type="submit" className="login-button" href="/">Sign in</button>
           {error && <p className="login-error">{error}</p>}
           <div className="login-links">
             <a href="/forgot-password" className="forgot-link">Forgot your password?</a>
