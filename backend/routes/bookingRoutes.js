@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const Booking = require("../models/Booking");
 const Listing = require("../models/Listing");
-const Message = require("../models/Messages");
 const verifyToken = require("../middleware/verifyToken");
+const mongoose = require("mongoose");
 
+// ✅ Create a booking
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { listingId, startDate, endDate, message } = req.body;
@@ -16,66 +16,110 @@ router.post("/", verifyToken, async (req, res) => {
     const listing = await Listing.findById(listingId);
     if (!listing) return res.status(404).json({ message: "Listing not found" });
 
-    const booking = new Booking({
-      listingId,
+    const booking = {
+      _id: new mongoose.Types.ObjectId(),
       renterId: req.user.id,
+      listerId: listing.userID,
       startDate,
       endDate,
-      message: message || "",
       status: "pending",
-    });
+      messages: [
+        {
+          sender: req.user.id,
+          text: message || "I'd like to book this listing",
+        },
+      ],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-    await booking.save();
+    listing.bookings.push(booking);
+    await listing.save();
 
-    const defaultMessage = new Message({
-      booking: booking._id,
-      sender: req.user.id,
-      receiver: listing.userID,
-      text: message || "I'd like to book this listing",
-    });
-
-  await defaultMessage.save();
-
-    const populatedBooking = await Booking.findById(booking._id)
-      .populate("listingId", "title address image")
-      .populate("renterId", "name email");
-
-    res.status(201).json(populatedBooking);
+    res.status(201).json(booking);
   } catch (error) {
     console.error("Error creating booking:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
+// ✅ Send a message inside a booking
+router.post("/:id/messages", verifyToken, async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) return res.status(400).json({ message: "Message text is required" });
+
+    const listing = await Listing.findOne({ "bookings._id": req.params.id });
+    if (!listing) return res.status(404).json({ message: "Booking not found" });
+
+    const booking = listing.bookings.id(req.params.id);
+    if (booking.status !== "approved") {
+      return res.status(403).json({ message: "You can only chat on approved bookings" });
+    }
+
+    const newMessage = { sender: req.user.id, text, timestamp: new Date() };
+    booking.messages.push(newMessage);
+    booking.updatedAt = new Date();
+
+    await listing.save();
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ Get messages of a booking
+router.get("/:id/messages", verifyToken, async (req, res) => {
+  try {
+    const listing = await Listing.findOne({ "bookings._id": req.params.id }).populate("bookings.messages.sender", "name email");
+    if (!listing) return res.status(404).json({ message: "Booking not found" });
+
+    const booking = listing.bookings.id(req.params.id);
+    res.json(booking.messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ Get renter's bookings
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const bookings = await Booking.find({ renterId: req.user.id })
-      .populate("listingId", "title address image") 
-      .sort({ createdAt: -1 });
+    const listings = await Listing.find({ "bookings.renterId": req.user.id }).populate("userID", "name email");
+    let bookings = [];
+    listings.forEach(listing => {
+      const userBookings = listing.bookings.filter(b => b.renterId.toString() === req.user.id);
+      bookings = bookings.concat(userBookings.map(b => ({ ...b.toObject(), listing })));
+    });
 
-    res.json(bookings);
+    res.json(bookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
+// ✅ Update booking status (owner only)
 router.put("/:id/status", verifyToken, async (req, res) => {
   try {
     const { status } = req.body;
-    if (!["approved", "rejected"].includes(status)) {
+    if (!["approved", "rejected", "completed"].includes(status)) {
       return res.status(400).json({ message: "Invalid status value" });
     }
 
-    const booking = await Booking.findById(req.params.id).populate("listingId", "userID title address image");
-    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    const listing = await Listing.findOne({ "bookings._id": req.params.id });
+    if (!listing) return res.status(404).json({ message: "Booking not found" });
 
-    if (booking.listingId.userID.toString() !== req.user.id) {
+    const booking = listing.bookings.id(req.params.id);
+
+    if (listing.userID.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
     booking.status = status;
-    await booking.save();
+    booking.updatedAt = new Date();
+    await listing.save();
 
     res.json({ message: `Booking ${status}`, booking });
   } catch (error) {
@@ -84,34 +128,31 @@ router.put("/:id/status", verifyToken, async (req, res) => {
   }
 });
 
+// ✅ Get bookings for owner’s listings
 router.get("/owner", verifyToken, async (req, res) => {
   try {
-    const listings = await Listing.find({ userID: req.user.id }).select("_id");
+    const listings = await Listing.find({ userID: req.user.id });
+    let bookings = [];
+    listings.forEach(listing => {
+      bookings = bookings.concat(listing.bookings.map(b => ({ ...b.toObject(), listing })));
+    });
 
-    if (listings.length === 0) return res.json([]);
-
-    const listingIds = listings.map(listing => listing._id);
-
-    const bookings = await Booking.find({ listingId: { $in: listingIds } })
-      .populate("listingId", "title station image") 
-      .populate("renterId", "name email")
-      .sort({ createdAt: -1 });
-
-    res.json(bookings);
+    res.json(bookings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
   } catch (error) {
     console.error("Error fetching owner bookings:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
+// ✅ Get renter’s approved bookings
 router.get("/approved", verifyToken, async (req, res) => {
   try {
-    const bookings = await Booking.find({
-      renterId: req.user.id,
-      status: "approved",
-    })
-      .populate("listingId", "title station image userID")
-      .populate("renterId", "name email");
+    const listings = await Listing.find({ "bookings.renterId": req.user.id, "bookings.status": "approved" });
+    let bookings = [];
+    listings.forEach(listing => {
+      const userBookings = listing.bookings.filter(b => b.renterId.toString() === req.user.id && b.status === "approved");
+      bookings = bookings.concat(userBookings.map(b => ({ ...b.toObject(), listing })));
+    });
 
     res.json(bookings);
   } catch (error) {
@@ -120,26 +161,109 @@ router.get("/approved", verifyToken, async (req, res) => {
   }
 });
 
+// ✅ Get approved bookings for a specific listing (owner only)
 router.get("/listing/:listingId", verifyToken, async (req, res) => {
   try {
-    const listingId = req.params.listingId;
-
-    // Verify ownership
-    const listing = await Listing.findById(listingId);
+    const listing = await Listing.findById(req.params.listingId);
     if (!listing) return res.status(404).json({ message: "Listing not found" });
     if (listing.userID.toString() !== req.user.id) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
-    // Fetch approved bookings for this listing
-    const bookings = await Booking.find({ listingId, status: "approved" })
-      .populate("renterId", "name email")
-      .populate("listingId", "title address image");
-
+    const bookings = listing.bookings.filter(b => b.status === "approved");
     res.json(bookings);
   } catch (err) {
     console.error("Error fetching listing bookings:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ Get booking history
+router.get("/history", verifyToken, async (req, res) => {
+  try {
+    const listings = await Listing.find({ $or: [{ userID: req.user.id }, { "bookings.renterId": req.user.id }] });
+    let bookings = [];
+    listings.forEach(listing => {
+      bookings = bookings.concat(listing.bookings.map(b => ({ ...b.toObject(), listing })));
+    });
+
+    res.json(bookings);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Submit Feedback
+router.put("/:id/feedback", verifyToken, async (req, res) => {
+  try {
+    const { rating, comment, type } = req.body;
+    const listing = await Listing.findOne({ "bookings._id": req.params.id });
+    if (!listing) return res.status(404).json({ message: "Booking not found" });
+
+    const booking = listing.bookings.id(req.params.id);
+    if (booking.status !== "completed") {
+      return res.status(400).json({ message: "Feedback allowed only after completion" });
+    }
+
+    if (type === "renter") {
+      if (booking.renterFeedback?.rating) return res.status(400).json({ message: "Already left feedback" });
+      booking.renterFeedback = { rating, comment };
+    } else if (type === "owner") {
+      if (booking.listerFeedback?.rating) return res.status(400).json({ message: "Already left feedback" });
+      booking.listerFeedback = { rating, comment };
+    } else {
+      return res.status(400).json({ message: "Invalid feedback type" });
+    }
+
+    booking.updatedAt = new Date();
+    await listing.save();
+
+    res.json({ message: "Feedback submitted", booking });
+  } catch (err) {
+    console.error("Error submitting feedback:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Cancel a booking
+router.put("/:id/cancel", verifyToken, async (req, res) => {
+  try {
+    const bookingId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(400).json({ message: "Invalid booking ID" });
+    }
+
+    // Find the listing that contains this booking
+    const listing = await Listing.findOne({ "bookings._id": bookingId });
+    if (!listing) return res.status(404).json({ message: "Booking not found" });
+
+    const booking = listing.bookings.id(bookingId);
+    if (!booking) return res.status(404).json({ message: "Booking not found in listing" });
+
+    // Only renter or listing owner can cancel
+    if (
+      booking.renterId.toString() !== req.user.id &&
+      listing.userID.toString() !== req.user.id
+    ) {
+      return res.status(403).json({ message: "Not authorized to cancel this booking" });
+    }
+
+    // Cannot cancel completed or rejected bookings
+    if (booking.status === "completed" || booking.status === "rejected") {
+      return res.status(400).json({ message: "Cannot cancel completed or rejected booking" });
+    }
+
+    // Update status and timestamp
+    booking.status = "cancelled";
+    booking.updatedAt = new Date();
+
+    await listing.save();
+
+    return res.json({ message: "Booking cancelled successfully", booking });
+  } catch (err) {
+    console.error("Error cancelling booking:", err);
+    return res.status(500).json({ message: "Server error while cancelling booking" });
   }
 });
 

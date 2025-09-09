@@ -3,17 +3,15 @@ const User = require("../models/User");
 const verifyToken = require("../middleware/verifyToken");
 const router = express.Router();
 
-// Middleware to ensure admin role
 const verifyAdmin = async (req, res, next) => {
   if (req.user.role !== "admin") return res.status(403).json({ message: "Access denied" });
   next();
 };
 
-// Get all users with pending verification
 router.get("/pending-verifications", verifyToken, async (req, res) => {
   try {
     const users = await User.find({
-      "documents.status": "pending" // look for at least one pending document
+      "documents.status": "pending"
     }).select("-password");
 
     res.json(users);
@@ -23,10 +21,9 @@ router.get("/pending-verifications", verifyToken, async (req, res) => {
   }
 });
 
-// PUT /api/admin/verify-document/:userId
 router.put("/verify-document/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
-  const { action } = req.body; // "approve" or "reject"
+  const { action } = req.body; 
 
   try {
     const user = await User.findById(userId);
@@ -34,10 +31,8 @@ router.put("/verify-document/:userId", verifyToken, async (req, res) => {
 
     if (!user.documents) return res.status(404).json({ message: "Document not found" });
 
-    // Update the single document
     user.documents.status = action === "approve" ? "approved" : "rejected";
 
-    // If approved, give badge
     if (action === "approve") user.badge = "trusted";
 
     await user.save();

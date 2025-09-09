@@ -4,34 +4,36 @@ import "../styles/MessagesPage.css";
 
 const MessagesPage = () => {
   const [items, setItems] = useState([]); // bookings for renter, listings for owner
-  const [selectedItem, setSelectedItem] = useState(null); // selected booking/listing
-  const [bookings, setBookings] = useState([]); // only for owner to select booking
-  const [selectedBooking, setSelectedBooking] = useState(null); // booking being messaged
+  const [selectedItem, setSelectedItem] = useState(null); // selected listing or booking
+  const [bookings, setBookings] = useState([]); // approved bookings for owner
+  const [selectedBooking, setSelectedBooking] = useState(null); // selected booking to chat
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("role"); // renting or listing
   const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
+  const token = localStorage.getItem("token");
 
   // Fetch data based on role
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem("token");
-
         if (role === "renting") {
+          // Renter: fetch approved bookings
           const res = await axios.get("http://localhost:5000/api/bookings/approved", {
             headers: { Authorization: `Bearer ${token}` },
           });
           setItems(res.data);
         } else if (role === "listing") {
+          // Owner: fetch all bookings for their listings
           const res = await axios.get("http://localhost:5000/api/bookings/owner", {
             headers: { Authorization: `Bearer ${token}` },
           });
           // Extract unique listings
           const listingsMap = {};
           res.data.forEach((b) => {
-            listingsMap[b.listingId._id] = b.listingId;
+            const listId = b.listing._id || b.listingId._id;
+            listingsMap[listId] = b.listing || b.listingId;
           });
           setItems(Object.values(listingsMap));
         }
@@ -40,12 +42,11 @@ const MessagesPage = () => {
       }
     };
     fetchData();
-  }, [role]);
+  }, [role, token]);
 
   // Fetch approved bookings for a listing (owner)
   const fetchBookings = async (listingId) => {
     try {
-      const token = localStorage.getItem("token");
       const res = await axios.get(
         `http://localhost:5000/api/bookings/listing/${listingId}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -59,9 +60,8 @@ const MessagesPage = () => {
   // Fetch messages for a booking
   const fetchMessages = async (bookingId) => {
     try {
-      const token = localStorage.getItem("token");
       const res = await axios.get(
-        `http://localhost:5000/api/messages/booking/${bookingId}`,
+        `http://localhost:5000/api/bookings/${bookingId}/messages`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessages(res.data);
@@ -88,23 +88,13 @@ const MessagesPage = () => {
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedBooking) return;
-    try {
-      const token = localStorage.getItem("token");
-      const receiverId =
-        role === "renting"
-          ? selectedBooking.listingId.userID
-          : selectedBooking.renterId._id;
 
+    try {
       const res = await axios.post(
-        "http://localhost:5000/api/messages",
-        {
-          bookingId: selectedBooking._id,
-          text: newMessage,
-          receiverId,
-        },
+        `http://localhost:5000/api/bookings/${selectedBooking._id}/messages`,
+        { text: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       setMessages([...messages, res.data]);
       setNewMessage("");
     } catch (err) {
@@ -127,7 +117,7 @@ const MessagesPage = () => {
                 onClick={() => handleSelectItem(item)}
               >
                 {role === "renting"
-                  ? `${item.listingId?.title} – ${item.listingId?.station || "N/A"}`
+                  ? `${item.listing?.title || item.listingId?.title} – ${item.listing?.station || item.listingId?.station || "N/A"}`
                   : item.title}
               </li>
             ))}
@@ -145,7 +135,7 @@ const MessagesPage = () => {
                   className={selectedBooking?._id === b._id ? "active" : ""}
                   onClick={() => handleSelectBooking(b)}
                 >
-                  {b.renterId.name} – {new Date(b.startDate).toLocaleDateString()}
+                  {b.renterId?.name} – {new Date(b.startDate).toLocaleDateString()}
                 </li>
               ))}
             </ul>
@@ -158,23 +148,22 @@ const MessagesPage = () => {
           <>
             <h2>
               Chat about{" "}
-              {role === "renting" ? selectedBooking.listingId.title : selectedItem.title}
+              {role === "renting"
+                ? selectedBooking.listing?.title || selectedBooking.listingId?.title
+                : selectedItem.title}
             </h2>
             <div className="chat-messages">
-              {messages.map((msg) => {
-                // Normalize senderId for both string and object
-                const senderId =
-                  typeof msg.sender === "string" ? msg.sender : msg.sender?._id;
-
+              {messages.map((msg, i) => {
+                const senderId = typeof msg.sender === "string" ? msg.sender : msg.sender?._id;
                 return (
                   <div
-                    key={msg._id}
+                    key={i}
                     className={`message ${
                       String(senderId) === String(userId) ? "my-message" : "their-message"
                     }`}
                   >
                     <p>{msg.text}</p>
-                    <span>{new Date(msg.createdAt).toLocaleTimeString()}</span>
+                    <span>{new Date(msg.timestamp || msg.createdAt).toLocaleTimeString()}</span>
                   </div>
                 );
               })}

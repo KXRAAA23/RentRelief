@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
-const sendEmail = require("../utils/sendEmail"); // ✅ your util
+const sendEmail = require("../utils/sendEmail"); 
 const router = express.Router();
 
 // REGISTER

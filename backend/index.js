@@ -12,7 +12,6 @@ const { Server } = require("socket.io");
 const authRoutes = require("./routes/Auth");
 const listingRoutes = require("./routes/listings");
 const bookingRoutes = require("./routes/bookingRoutes");
-const messageRoutes = require("./routes/messageRoutes");
 const userRoutes = require("./routes/userRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const createAdminIfNotExists = require("./utils/createAdmin");
@@ -53,7 +52,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/listings", listingRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/messages", messageRoutes);
 app.use("/api/admin", adminRoutes);
 
 const server = http.createServer(app);

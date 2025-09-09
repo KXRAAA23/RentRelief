@@ -11,6 +11,7 @@ function ListingDetails() {
 
   const [listing, setListing] = useState(null);
   const [bookings, setBookings] = useState([]);
+  const [reviews, setReviews] = useState([]); // ✅ Store renter reviews
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -20,23 +21,40 @@ function ListingDetails() {
   const isOwner = listing?.userID === userId;
 
   useEffect(() => {
-    const fetchListing = async () => {
-      try {
-        const res = await axios.get(`http://localhost:5000/api/listings/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
-        setListing(res.data);
+  const fetchListing = async () => {
+    try {
+      // Fetch listing info with populated renter info for bookings
+      const res = await axios.get(`http://localhost:5000/api/listings/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
-        if (userRole === "owner") {
-          setBookings(res.data.bookings || []);
-        }
-      } catch (err) {
-        console.error("Error fetching listing details:", err.response?.data || err.message);
+      setListing(res.data);
+
+      if (userRole === "owner") {
+        setBookings(res.data.bookings || []);
       }
-    };
 
-    fetchListing();
-  }, [id, userRole]);
+      // Filter completed bookings with renterFeedback for reviews
+      const propertyReviews = res.data.bookings
+        .filter(b => b.status === "completed" && b.renterFeedback?.rating)
+        .map(b => ({
+          rating: b.renterFeedback.rating,
+          comment: b.renterFeedback.comment,
+          renterName: b.renterId?.name || "Anonymous", // renterId is populated
+        }));
+
+      setReviews(propertyReviews);
+    } catch (err) {
+      console.error(
+        "Error fetching listing details:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  fetchListing();
+}, [id, userRole]);
+
 
   const handleBookNow = async () => {
     if (!startDate || !endDate) {
@@ -53,17 +71,21 @@ function ListingDetails() {
         message: "I'd like to book this listing.",
       };
 
-      await axios.post(
-        "http://localhost:5000/api/bookings",
-        bookingData,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+      await axios.post("http://localhost:5000/api/bookings", bookingData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
       alert("Booking request sent!");
       navigate("/bookings");
     } catch (err) {
-      console.error("Error creating booking:", err.response?.data || err.message);
-      alert("Failed to create booking: " + (err.response?.data?.message || err.message));
+      console.error(
+        "Error creating booking:",
+        err.response?.data || err.message
+      );
+      alert(
+        "Failed to create booking: " +
+          (err.response?.data?.message || err.message)
+      );
     }
   };
 
@@ -88,6 +110,20 @@ function ListingDetails() {
             <p><strong>Bedrooms:</strong> {listing.bedrooms}</p>
             <p><strong>Bathrooms:</strong> {listing.bathrooms}</p>
           </div>
+
+          {/* Reviews Section */}
+          {reviews.length > 0 && (
+            <div className="reviews-section">
+              <h3>Reviews</h3>
+              {reviews.map((review, index) => (
+                <div key={index} className="review-card">
+                  <p><strong>{review.renterName}</strong></p>
+                  <p>⭐ {review.rating}</p>
+                  <p>{review.comment}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -127,7 +163,7 @@ function ListingDetails() {
             <h3>Bookings for this listing</h3>
             {bookings.map((b) => (
               <div className="booking-card" key={b._id}>
-                <p><strong>Renter:</strong> {b.renterName || b.renterId}</p>
+                <p><strong>Renter:</strong> {b.renterId?.name || b.renterName}</p>
                 <p>
                   <strong>Dates:</strong> {new Date(b.startDate).toLocaleDateString()} -{" "}
                   {new Date(b.endDate).toLocaleDateString()}

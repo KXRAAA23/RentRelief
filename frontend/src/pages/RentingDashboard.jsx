@@ -75,10 +75,11 @@ function RentingDashboard() {
     maxRent,
     bedrooms: bedrooms > 0 ? bedrooms : undefined,
     bathrooms: bathrooms > 0 ? bathrooms : undefined,
-    amenities: selectedAmenities.length > 0 ? selectedAmenities.join(",") : undefined,
+    amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined, // send as array
   };
   fetchListings(params);
 };
+
 
   // Reset filters
   const clearFilters = () => {

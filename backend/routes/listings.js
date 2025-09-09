@@ -64,31 +64,42 @@ router.get("/my", verifyToken, async (req, res) => {
 // ----------------- SEARCH LISTINGS -----------------
 router.get("/search", async (req, res) => {
   try {
-    const { line, area, station, minRent, maxRent, bedrooms, bathrooms, amenities } = req.query;
+    const {
+      line,
+      area,
+      station,
+      minRent,
+      maxRent,
+      bedrooms,
+      bathrooms,
+      amenities,
+    } = req.query;
+
     const query = {};
 
     // Line, Area, Station
     if (line) query.line = line;
     if (area) query.area = area;
-    if (station) query.station = station; // if city = station in schema
+    if (station) query.station = station;
 
     // Rent range
     if (minRent || maxRent) query.rent = {};
     if (minRent) query.rent.$gte = Number(minRent);
     if (maxRent) query.rent.$lte = Number(maxRent);
 
-    // Bedrooms >= selected
+    // Bedrooms & Bathrooms
     if (bedrooms) query.bedrooms = { $gte: Number(bedrooms) };
-
-    // Bathrooms >= selected
     if (bathrooms) query.bathrooms = { $gte: Number(bathrooms) };
 
-    // Amenities
+    // Amenities – accept array or comma-separated string
     if (amenities) {
-      const amenitiesArray = Array.isArray(amenities)
-        ? amenities
-        : amenities.split(",");
-      query.amenities = { $all: amenitiesArray };
+      let amenitiesArray = [];
+      if (Array.isArray(amenities)) {
+        amenitiesArray = amenities;
+      } else if (typeof amenities === "string") {
+        amenitiesArray = amenities.split(",").map((a) => a.trim());
+      }
+      if (amenitiesArray.length > 0) query.amenities = { $all: amenitiesArray };
     }
 
     const listings = await Listing.find(query);
@@ -99,19 +110,24 @@ router.get("/search", async (req, res) => {
   }
 });
 
+
 // ----------------- GET LISTING BY ID -----------------
 router.get("/:id", verifyToken, async (req, res) => {
   try {
-    const listing = await Listing.findById(req.params.id);
-    if (!listing) return res.status(404).json({ error: "Listing not found" });
+    // Populate bookings.renterId so we can show renter names in reviews
+    const listing = await Listing.findById(req.params.id)
+      .populate("userID", "name email")        // owner info
+      .populate("bookings.renterId", "name email"); // renter info for reviews
 
-    // Remove ownership check here — anyone logged in can view
+    if (!listing) return res.status(404).json({ message: "Listing not found" });
+
     res.json(listing);
   } catch (err) {
-    console.error("Error fetching listing by ID:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error("Error fetching listing:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 
 
 // ----------------- UPDATE LISTING -----------------

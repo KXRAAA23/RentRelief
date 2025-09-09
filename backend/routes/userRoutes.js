@@ -16,20 +16,17 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Upload verification document
 router.post("/upload-document", verifyToken, upload.single("file"), async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Single document object
     const document = {
       docType: req.body.type || "id_document",
       docUrl: `/documents/${req.file.filename}`,
       status: "pending",
     };
 
-    // Assign directly since it's no longer an array
     user.documents = document;
 
     await user.save();
@@ -41,7 +38,6 @@ router.post("/upload-document", verifyToken, upload.single("file"), async (req, 
 });
 
 
-// Get profile
 router.get("/profile", verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -54,7 +50,6 @@ router.get("/profile", verifyToken, async (req, res) => {
   }
 });
 
-// Update profile (name, email, age, gender, verification)
 router.put("/profile", verifyToken, async (req, res) => {
   try {
     const { name, email, age, gender, verificationMethod } = req.body;
@@ -85,7 +80,6 @@ router.put("/profile", verifyToken, async (req, res) => {
       updates.gender = gender.toLowerCase();
     }
 
-    // Verification logic
     if (verificationMethod) {
       updates.isVerified = true;
       updates.verificationMethod = verificationMethod;
@@ -137,6 +131,55 @@ router.put("/submit-verification", verifyToken, async (req, res) => {
     res.json({ message: "Verification request submitted", user: updatedUser });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/:id/rate", verifyToken, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    if (!rating || rating < 1 || rating > 5) {
+      return res.status(400).json({ message: "Rating must be between 1 and 5" });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const review = {
+      fromUser: req.user.id,
+      rating,
+      comment,
+      createdAt: new Date(),
+    };
+
+    user.reviews.push(review);
+
+    const totalReviews = user.reviews.length;
+    const avgRating =
+      user.reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews;
+
+    user.avgRating = avgRating;
+    user.totalReviews = totalReviews;
+
+    await user.save();
+    res.json({ message: "Review submitted", user });
+  } catch (err) {
+    console.error("RATE USER ERROR:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get("/:id/ratings", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id)
+      .select("name avgRating totalReviews reviews")
+      .populate("reviews.fromUser", "name email");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    console.error("GET RATINGS ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

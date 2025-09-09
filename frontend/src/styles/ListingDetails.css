@@ -4,11 +4,13 @@
   padding: 2rem;
   max-width: 1200px;
   margin: auto;
+  flex-wrap: wrap;
 }
 
 /* Left section */
 .listing-info-section {
   flex: 2;
+  min-width: 300px;
 }
 
 .listing-image img {
@@ -41,9 +43,27 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* Reviews Section */
+.reviews-section {
+  margin-top: 2rem;
+}
+
+.review-card {
+  background: #f1f5f9;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.review-card p {
+  margin: 0.2rem 0;
+}
+
 /* Right section */
 .listing-action-section {
   flex: 1;
+  min-width: 280px;
   position: sticky;
   top: 100px;
   align-self: flex-start;
@@ -55,6 +75,7 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
 .booking-form h3 {
@@ -127,5 +148,9 @@
   .listing-action-section {
     position: relative;
     top: unset;
+  }
+
+  .reviews-section {
+    margin-top: 1.5rem;
   }
 }

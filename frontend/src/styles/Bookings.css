@@ -1,52 +1,69 @@
 .bookings-container {
-  max-width: 900px;
-  margin: 0 auto;
+  max-width: 1000px;
+  margin: 40px auto;
   padding: 20px;
 }
 
 .booking-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 25px;
 }
 
 .booking-card {
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
   overflow: hidden;
   background: #fff;
   display: flex;
   flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
 }
 
 .booking-image {
   width: 100%;
-  height: 180px;
+  height: 200px;
   object-fit: cover;
 }
 
 .booking-info {
-  padding: 10px;
+  padding: 15px;
 }
 
 .booking-info h3 {
-  margin: 0 0 5px 0;
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  color: #333;
 }
 
 .booking-info p {
-  margin: 3px 0;
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.95rem;
 }
 
 .booking-buttons {
-  margin-top: 10px;
+  margin-top: auto;
+  padding: 12px 15px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .booking-buttons button {
-  margin-right: 10px;
-  padding: 5px 10px;
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px 14px;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .booking-buttons button:first-child {
@@ -54,7 +71,17 @@
   color: white;
 }
 
+.booking-buttons button:first-child:hover {
+  background-color: #43a047;
+  transform: scale(1.03);
+}
+
 .booking-buttons button:last-child {
   background-color: #f44336;
   color: white;
+}
+
+.booking-buttons button:last-child:hover {
+  background-color: #e53935;
+  transform: scale(1.03);
 }
