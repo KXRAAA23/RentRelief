@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// 🔹 Reusable rating schema
 const ratingSchema = new mongoose.Schema(
   {
     fromUser: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },

@@ -5,7 +5,7 @@ import "../styles/Login.css";
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "listing" });
   const [otp, setOtp] = useState("");
-  const [userId, setUserId] = useState(""); // store backend userId
+  const [userId, setUserId] = useState(""); 
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ function Register() {
       const data = await res.json();
       if (!res.ok) return setError(data.message || "Registration failed");
 
-      setUserId(data.userId); // save the userId from backend
+      setUserId(data.userId); 
       setShowOtpInput(true);
     } catch {
       setError("Something went wrong. Try again.");
@@ -45,7 +45,7 @@ function Register() {
       const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, otp }), // send userId + otp
+        body: JSON.stringify({ userId, otp }), 
       });
 
       const data = await res.json();

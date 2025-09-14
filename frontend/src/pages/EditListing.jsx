@@ -33,13 +33,19 @@ function EditListing() {
     line: "",
     area: "",
     station: "",
-    amenities: []
+    amenities: [],
+    address: {
+      street: "",
+      city: "",
+      state: "Maharashtra",
+      pincode: ""
+    }
   });
+
   const [stationsList, setStationsList] = useState([]);
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  // Fetch existing listing
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -48,7 +54,6 @@ function EditListing() {
         });
         const data = res.data;
 
-        // Determine line and area from city
         let line = "", area = "";
         for (const l in linesData) {
           for (const a in linesData[l]) {
@@ -70,7 +75,13 @@ function EditListing() {
           line,
           area,
           station: data.station || "",
-          amenities: data.amenities || []
+          amenities: data.amenities || [],
+          address: {
+            street: data.address?.street || "",
+            city: data.address?.city || "",
+            state: data.address?.state || "Maharashtra",
+            pincode: data.address?.pincode || ""
+          }
         });
 
         if (data.image) setImagePreview(`http://localhost:5000${data.image}`);
@@ -81,7 +92,6 @@ function EditListing() {
     fetchListing();
   }, [id]);
 
-  // Update stations list when line or area changes
   useEffect(() => {
     if (formData.line && formData.area) setStationsList(linesData[formData.line][formData.area]);
     else setStationsList([]);
@@ -102,6 +112,15 @@ function EditListing() {
         setImage(files[0]);
         setImagePreview(URL.createObjectURL(files[0]));
       }
+    } else if (name.startsWith("address.")) {
+      const key = name.split(".")[1];
+      setFormData(prev => ({
+        ...prev,
+        address: {
+          ...prev.address,
+          [key]: value
+        }
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -121,10 +140,16 @@ function EditListing() {
       payload.append("rent", formData.rent);
       payload.append("bedrooms", formData.bedrooms);
       payload.append("bathrooms", formData.bathrooms);
-      payload.append("state", "Maharashtra");
       payload.append("station", formData.station);
       payload.append("line", formData.line);
       payload.append("area", formData.area);
+
+      // ✅ Add address
+      payload.append("address[street]", formData.address.street);
+      payload.append("address[city]", formData.address.city);
+      payload.append("address[state]", formData.address.state);
+      payload.append("address[pincode]", formData.address.pincode);
+
       if (image) payload.append("image", image);
       formData.amenities.forEach(a => payload.append("amenities[]", a));
 
@@ -142,59 +167,72 @@ function EditListing() {
 
   return (
     <div className="edit-listing">
-  <h2>Edit Listing</h2>
-  <form onSubmit={handleSubmit} encType="multipart/form-data">
-    
-    <label>Title</label>
-    <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Title" required />
+      <h2>Edit Listing</h2>
+      <form onSubmit={handleSubmit} encType="multipart/form-data">
+        
+        <label>Title</label>
+        <input type="text" name="title" value={formData.title} onChange={handleChange} required />
 
-    <label>Description</label>
-    <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description" required />
+        <label>Description</label>
+        <textarea name="description" value={formData.description} onChange={handleChange} required />
 
-    <label>Rent (₹)</label>
-    <input type="number" name="rent" value={formData.rent} onChange={handleChange} placeholder="Rent" required />
+        <label>Rent (₹)</label>
+        <input type="number" name="rent" value={formData.rent} onChange={handleChange} required />
 
-    <label>Bedrooms</label>
-    <input type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} min={1} max={5} required />
+        <label>Bedrooms</label>
+        <input type="number" name="bedrooms" value={formData.bedrooms} onChange={handleChange} min={1} required />
 
-    <label>Bathrooms</label>
-    <input type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} min={1} max={5} required />
+        <label>Bathrooms</label>
+        <input type="number" name="bathrooms" value={formData.bathrooms} onChange={handleChange} min={1} required />
 
-    <label>Line</label>
-    <select name="line" value={formData.line} onChange={handleChange}>
-      <option value="">Select Line</option>
-      {Object.keys(linesData).map(l => <option key={l} value={l}>{l}</option>)}
-    </select>
+        {/* ✅ Address fields */}
+        <h3>Address</h3>
+        <label>Street</label>
+        <input type="text" name="address.street" value={formData.address.street} onChange={handleChange} />
 
-    <label>Area</label>
-    <select name="area" value={formData.area} onChange={handleChange} disabled={!formData.line}>
-      <option value="">Select Area</option>
-      {formData.line && Object.keys(linesData[formData.line]).map(a => <option key={a} value={a}>{a}</option>)}
-    </select>
+        <label>City</label>
+        <input type="text" name="address.city" value={formData.address.city} onChange={handleChange} />
 
-    <label>Station</label>
-    <select name="station" value={formData.station} onChange={handleChange} disabled={!formData.area}>
-      <option value="">Select Station</option>
-      {stationsList.map(s => <option key={s} value={s}>{s}</option>)}
-    </select>
+        <label>State</label>
+        <input type="text" name="address.state" value={formData.address.state} onChange={handleChange} />
 
-    <label>Amenities</label>
-    <div className="amenities-checkboxes">
-      {amenitiesOptions.map(a => (
-        <label key={a}>
-          <input type="checkbox" value={a} checked={formData.amenities.includes(a)} onChange={handleChange} /> {a}
-        </label>
-      ))}
+        <label>Pincode</label>
+        <input type="text" name="address.pincode" value={formData.address.pincode} onChange={handleChange} />
+
+        <label>Line</label>
+        <select name="line" value={formData.line} onChange={handleChange}>
+          <option value="">Select Line</option>
+          {Object.keys(linesData).map(l => <option key={l} value={l}>{l}</option>)}
+        </select>
+
+        <label>Area</label>
+        <select name="area" value={formData.area} onChange={handleChange} disabled={!formData.line}>
+          <option value="">Select Area</option>
+          {formData.line && Object.keys(linesData[formData.line]).map(a => <option key={a} value={a}>{a}</option>)}
+        </select>
+
+        <label>Station</label>
+        <select name="station" value={formData.station} onChange={handleChange} disabled={!formData.area}>
+          <option value="">Select Station</option>
+          {stationsList.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+
+        <label>Amenities</label>
+        <div className="amenities-checkboxes">
+          {amenitiesOptions.map(a => (
+            <label key={a}>
+              <input type="checkbox" value={a} checked={formData.amenities.includes(a)} onChange={handleChange} /> {a}
+            </label>
+          ))}
+        </div>
+
+        <label>Upload Image</label>
+        <input type="file" accept="image/*" onChange={handleChange} />
+        {imagePreview && <img src={imagePreview} alt="Preview" width="200" style={{ marginTop: "1rem", borderRadius: "8px" }} />}
+
+        <button type="submit">Update Listing</button>
+      </form>
     </div>
-
-    <label>Upload Image</label>
-    <input type="file" accept="image/*" onChange={handleChange} />
-    {imagePreview && <img src={imagePreview} alt="Preview" width="200" style={{ marginTop: "1rem", borderRadius: "8px" }} />}
-
-    <button type="submit">Update Listing</button>
-  </form>
-</div>
-
   );
 }
 

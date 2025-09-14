@@ -11,7 +11,7 @@ const ProfilePage = () => {
     isVerified: false,
     verificationMethod: "",
     badge: "none",
-    documents: null, // single object now
+    documents: null,
   });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -153,7 +153,6 @@ const ProfilePage = () => {
           <p>No document uploaded yet.</p>
         )}
 
-        {/* Show upload only if no document or not approved */}
         {(!user.documents || user.documents.status !== "approved") && (
           <>
             <input type="file" onChange={handleFileChange} />

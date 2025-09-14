@@ -21,6 +21,7 @@ const amenitiesList = ["Furnished", "AC", "Parking", "Lift", "Power Backup"];
 
 function RentingDashboard() {
   const [listings, setListings] = useState([]);
+
   const [selectedLine, setSelectedLine] = useState("");
   const [selectedArea, setSelectedArea] = useState("");
   const [selectedStation, setSelectedStation] = useState("");
@@ -34,7 +35,6 @@ function RentingDashboard() {
 
   const [loading, setLoading] = useState(false);
 
-  // Update stations list when line/area change
   useEffect(() => {
     if (selectedLine && selectedArea) {
       setStationsList(linesData[selectedLine][selectedArea]);
@@ -44,7 +44,6 @@ function RentingDashboard() {
     setSelectedStation("");
   }, [selectedLine, selectedArea]);
 
-  // Fetch listings (with optional filters)
   const fetchListings = async (filters = {}) => {
     setLoading(true);
     try {
@@ -61,27 +60,24 @@ function RentingDashboard() {
     }
   };
 
-  // Load all listings initially
   useEffect(() => {
     fetchListings();
   }, []);
 
   const applyFilters = () => {
-  const params = {
-    line: selectedLine || undefined,
-    area: selectedArea || undefined,
-    station: selectedStation || undefined,
-    minRent,
-    maxRent,
-    bedrooms: bedrooms > 0 ? bedrooms : undefined,
-    bathrooms: bathrooms > 0 ? bathrooms : undefined,
-    amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined, // send as array
+    const params = {
+      line: selectedLine || undefined,
+      area: selectedArea || undefined,
+      station: selectedStation || undefined,
+      minRent,
+      maxRent,
+      bedrooms: bedrooms > 0 ? bedrooms : undefined,
+      bathrooms: bathrooms > 0 ? bathrooms : undefined,
+      amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
+    };
+    fetchListings(params);
   };
-  fetchListings(params);
-};
 
-
-  // Reset filters
   const clearFilters = () => {
     setSelectedLine("");
     setSelectedArea("");
@@ -91,7 +87,7 @@ function RentingDashboard() {
     setBedrooms(0);
     setBathrooms(0);
     setSelectedAmenities([]);
-    fetchListings(); // reload all
+    fetchListings();
   };
 
   return (
@@ -148,7 +144,7 @@ function RentingDashboard() {
           ))}
         </select>
 
-        {/* Rent sliders */}
+        {/* Rent Range */}
         <div>
           <label>Min Rent: ₹{minRent}</label>
           <input
@@ -256,6 +252,19 @@ function RentingDashboard() {
                 Line: {listing.line} | Area: {listing.area} | Station:{" "}
                 {listing.station}
               </p>
+              {/* 🏠 Full Address */}
+              {listing.address && (
+                <p>
+                  <strong>Address:</strong>{" "}
+                  {listing.address.street ? `${listing.address.street}, ` : ""}
+                  {listing.address.city ? `${listing.address.city}, ` : ""}
+                  {listing.address.state ? `${listing.address.state}, ` : ""}
+                  {listing.address.pincode
+                    ? `${listing.address.pincode}, `
+                    : ""}
+                  {listing.address.country || "India"}
+                </p>
+              )}
 
               <button
                 onClick={() =>

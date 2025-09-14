@@ -4,10 +4,9 @@ const verifyToken = require("../middleware/verifyToken");
 const multer = require("multer");
 const router = express.Router();
 
-// Configure multer storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "documents/"); // save files to the documents folder
+    cb(null, "documents/"); 
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

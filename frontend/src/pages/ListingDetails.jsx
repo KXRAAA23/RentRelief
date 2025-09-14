@@ -11,49 +11,47 @@ function ListingDetails() {
 
   const [listing, setListing] = useState(null);
   const [bookings, setBookings] = useState([]);
-  const [reviews, setReviews] = useState([]); // ✅ Store renter reviews
+  const [reviews, setReviews] = useState([]); 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
   const userId = localStorage.getItem("userId");
-  const userRole = localStorage.getItem("role"); // "renting" or "owner"
+  const userRole = localStorage.getItem("role"); 
 
   const isOwner = listing?.userID === userId;
 
   useEffect(() => {
-  const fetchListing = async () => {
-    try {
-      // Fetch listing info with populated renter info for bookings
-      const res = await axios.get(`http://localhost:5000/api/listings/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
+    const fetchListing = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5000/api/listings/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
 
-      setListing(res.data);
+        setListing(res.data);
 
-      if (userRole === "owner") {
-        setBookings(res.data.bookings || []);
+        if (userRole === "owner") {
+          setBookings(res.data.bookings || []);
+        }
+
+        const propertyReviews = res.data.bookings
+          .filter(b => b.status === "completed" && b.renterFeedback?.rating)
+          .map(b => ({
+            rating: b.renterFeedback.rating,
+            comment: b.renterFeedback.comment,
+            renterName: b.renterId?.name || "Anonymous",
+          }));
+
+        setReviews(propertyReviews);
+      } catch (err) {
+        console.error(
+          "Error fetching listing details:",
+          err.response?.data || err.message
+        );
       }
+    };
 
-      // Filter completed bookings with renterFeedback for reviews
-      const propertyReviews = res.data.bookings
-        .filter(b => b.status === "completed" && b.renterFeedback?.rating)
-        .map(b => ({
-          rating: b.renterFeedback.rating,
-          comment: b.renterFeedback.comment,
-          renterName: b.renterId?.name || "Anonymous", // renterId is populated
-        }));
-
-      setReviews(propertyReviews);
-    } catch (err) {
-      console.error(
-        "Error fetching listing details:",
-        err.response?.data || err.message
-      );
-    }
-  };
-
-  fetchListing();
-}, [id, userRole]);
+    fetchListing();
+  }, [id, userRole]);
 
 
   const handleBookNow = async () => {
@@ -93,7 +91,6 @@ function ListingDetails() {
 
   return (
     <div className="listing-details-container">
-      {/* Left side - Property Info */}
       <div className="listing-info-section">
         <div className="listing-image">
           {listing.image && (
@@ -107,11 +104,23 @@ function ListingDetails() {
           <div className="meta">
             <p><strong>Rent:</strong> ₹{listing.rent}/month</p>
             <p><strong>Location:</strong> {listing.station}, {listing.area}</p>
+
+            {/* 🏠 Full Address */}
+            {listing.address && (
+              <p>
+                <strong>Address:</strong>{" "}
+                {listing.address.street ? `${listing.address.street}, ` : ""}
+                {listing.address.city ? `${listing.address.city}, ` : ""}
+                {listing.address.state ? `${listing.address.state}, ` : ""}
+                {listing.address.pincode ? `${listing.address.pincode}, ` : ""}
+                {listing.address.country || "India"}
+              </p>
+            )}
+
             <p><strong>Bedrooms:</strong> {listing.bedrooms}</p>
             <p><strong>Bathrooms:</strong> {listing.bathrooms}</p>
           </div>
 
-          {/* Reviews Section */}
           {reviews.length > 0 && (
             <div className="reviews-section">
               <h3>Reviews</h3>
@@ -127,9 +136,7 @@ function ListingDetails() {
         </div>
       </div>
 
-      {/* Right side - Booking box or Owner's bookings */}
       <div className="listing-action-section">
-        {/* Renter booking form */}
         {!isOwner && userRole === "renting" && (
           <div className="booking-form">
             <h3>Book this property</h3>
@@ -157,7 +164,6 @@ function ListingDetails() {
           </div>
         )}
 
-        {/* Owner bookings list */}
         {isOwner && bookings.length > 0 && (
           <div className="bookings-section">
             <h3>Bookings for this listing</h3>

@@ -4,7 +4,6 @@ const Listing = require("../models/Listing");
 const verifyToken = require("../middleware/verifyToken");
 const mongoose = require("mongoose");
 
-// ✅ Create a booking
 router.post("/", verifyToken, async (req, res) => {
   try {
     const { listingId, startDate, endDate, message } = req.body;
@@ -43,7 +42,6 @@ router.post("/", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Send a message inside a booking
 router.post("/:id/messages", verifyToken, async (req, res) => {
   try {
     const { text } = req.body;
@@ -69,7 +67,6 @@ router.post("/:id/messages", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get messages of a booking
 router.get("/:id/messages", verifyToken, async (req, res) => {
   try {
     const listing = await Listing.findOne({ "bookings._id": req.params.id }).populate("bookings.messages.sender", "name email");
@@ -83,7 +80,6 @@ router.get("/:id/messages", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get renter's bookings
 router.get("/", verifyToken, async (req, res) => {
   try {
     const listings = await Listing.find({ "bookings.renterId": req.user.id }).populate("userID", "name email");
@@ -100,7 +96,6 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Update booking status (owner only)
 router.put("/:id/status", verifyToken, async (req, res) => {
   try {
     const { status } = req.body;
@@ -128,7 +123,6 @@ router.put("/:id/status", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get bookings for owner’s listings
 router.get("/owner", verifyToken, async (req, res) => {
   try {
     const listings = await Listing.find({ userID: req.user.id });
@@ -144,7 +138,6 @@ router.get("/owner", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get renter’s approved bookings
 router.get("/approved", verifyToken, async (req, res) => {
   try {
     const listings = await Listing.find({ "bookings.renterId": req.user.id, "bookings.status": "approved" });
@@ -161,7 +154,6 @@ router.get("/approved", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get approved bookings for a specific listing (owner only)
 router.get("/listing/:listingId", verifyToken, async (req, res) => {
   try {
     const listing = await Listing.findById(req.params.listingId);
@@ -178,7 +170,6 @@ router.get("/listing/:listingId", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Get booking history
 router.get("/history", verifyToken, async (req, res) => {
   try {
     const listings = await Listing.find({ $or: [{ userID: req.user.id }, { "bookings.renterId": req.user.id }] });
@@ -193,7 +184,6 @@ router.get("/history", verifyToken, async (req, res) => {
   }
 });
 
-// ✅ Submit Feedback
 router.put("/:id/feedback", verifyToken, async (req, res) => {
   try {
     const { rating, comment, type } = req.body;
@@ -225,7 +215,6 @@ router.put("/:id/feedback", verifyToken, async (req, res) => {
   }
 });
 
-// Cancel a booking
 router.put("/:id/cancel", verifyToken, async (req, res) => {
   try {
     const bookingId = req.params.id;
@@ -234,14 +223,12 @@ router.put("/:id/cancel", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "Invalid booking ID" });
     }
 
-    // Find the listing that contains this booking
     const listing = await Listing.findOne({ "bookings._id": bookingId });
     if (!listing) return res.status(404).json({ message: "Booking not found" });
 
     const booking = listing.bookings.id(bookingId);
     if (!booking) return res.status(404).json({ message: "Booking not found in listing" });
 
-    // Only renter or listing owner can cancel
     if (
       booking.renterId.toString() !== req.user.id &&
       listing.userID.toString() !== req.user.id
@@ -249,12 +236,10 @@ router.put("/:id/cancel", verifyToken, async (req, res) => {
       return res.status(403).json({ message: "Not authorized to cancel this booking" });
     }
 
-    // Cannot cancel completed or rejected bookings
     if (booking.status === "completed" || booking.status === "rejected") {
       return res.status(400).json({ message: "Cannot cancel completed or rejected booking" });
     }
 
-    // Update status and timestamp
     booking.status = "cancelled";
     booking.updatedAt = new Date();
 

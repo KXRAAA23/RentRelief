@@ -7,10 +7,9 @@ const Bookings = ({ currentUser = {} }) => {
   const userRole = currentUser.role || "renting";
   const [bookings, setBookings] = useState([]);
   const [filter, setFilter] = useState("all");
-  const [feedback, setFeedback] = useState({}); // store rating + comment per booking
+  const [feedback, setFeedback] = useState({});
   const navigate = useNavigate();
 
-  // Fetch bookings based on role
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -30,7 +29,6 @@ const Bookings = ({ currentUser = {} }) => {
     fetchBookings();
   }, [userRole]);
 
-  // Change booking status (approve/reject/complete)
   const handleStatusChange = async (bookingId, status) => {
     try {
       const baseURL = "http://localhost:5000";
@@ -47,7 +45,6 @@ const Bookings = ({ currentUser = {} }) => {
     }
   };
 
-  // Cancel booking (renter)
   const handleCancelBooking = async (bookingId) => {
   if (!window.confirm("Are you sure you want to cancel this booking?")) return;
 
@@ -55,7 +52,7 @@ const Bookings = ({ currentUser = {} }) => {
     const baseURL = "http://localhost:5000";
     await axios.put(
       `${baseURL}/api/bookings/${bookingId}/cancel`,
-      {}, // no body needed
+      {},
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
 
@@ -104,7 +101,6 @@ const Bookings = ({ currentUser = {} }) => {
     <div className="bookings-container">
       <h2>Your Bookings</h2>
 
-      {/* Filter Dropdown */}
       <div className="booking-filter">
         <label>Filter by Status: </label>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -148,7 +144,6 @@ const Bookings = ({ currentUser = {} }) => {
 
             return (
               <div className="booking-card" key={booking._id}>
-                {/* Listing Image */}
                 {booking.listing?.image ? (
                   <img
                     src={`http://localhost:5000${booking.listing.image}`}
@@ -175,7 +170,6 @@ const Bookings = ({ currentUser = {} }) => {
                     Status: {capitalizedStatus}
                   </p>
 
-                  {/* Buttons for listing owner */}
                   {userRole === "listing" && (
                     <div className="booking-buttons">
                       {booking.status === "pending" && (
@@ -208,7 +202,6 @@ const Bookings = ({ currentUser = {} }) => {
                     </div>
                   )}
 
-                  {/* Cancel booking for renter */}
                   {(userRole === "renting" || userRole === "listing") &&
                     (booking.status === "pending" || booking.status === "approved") && (
                       <button
@@ -219,12 +212,10 @@ const Bookings = ({ currentUser = {} }) => {
                     )}
                   <button onClick={() => handleMessage(booking._id)}>Message</button>
 
-                  {/* Completed Booking Feedback */}
                   {booking.status === "completed" && (
                     <div style={{ marginTop: "10px", fontWeight: "bold", color: "blue" }}>
-                      ✅ Booking completed. Leave feedback below.
+                      Booking completed. Leave feedback below.
 
-                      {/* Renter feedback */}
                       {userRole === "renting" && (
                         <>
                           {booking.renterFeedback ? (
@@ -277,7 +268,6 @@ const Bookings = ({ currentUser = {} }) => {
                         </>
                       )}
 
-                      {/* Lister feedback */}
                       {userRole === "listing" && (
                         <>
                           {booking.listerFeedback ? (

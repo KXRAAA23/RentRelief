@@ -3,33 +3,29 @@ import axios from "axios";
 import "../styles/MessagesPage.css";
 
 const MessagesPage = () => {
-  const [items, setItems] = useState([]); // bookings for renter, listings for owner
-  const [selectedItem, setSelectedItem] = useState(null); // selected listing or booking
-  const [bookings, setBookings] = useState([]); // approved bookings for owner
-  const [selectedBooking, setSelectedBooking] = useState(null); // selected booking to chat
+  const [items, setItems] = useState([]); 
+  const [selectedItem, setSelectedItem] = useState(null); 
+  const [bookings, setBookings] = useState([]);
+  const [selectedBooking, setSelectedBooking] = useState(null); 
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
-  const role = localStorage.getItem("role"); // renting or listing
+  const role = localStorage.getItem("role"); 
   const userId = JSON.parse(localStorage.getItem("user") || "{}").id;
   const token = localStorage.getItem("token");
 
-  // Fetch data based on role
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (role === "renting") {
-          // Renter: fetch approved bookings
           const res = await axios.get("http://localhost:5000/api/bookings/approved", {
             headers: { Authorization: `Bearer ${token}` },
           });
           setItems(res.data);
         } else if (role === "listing") {
-          // Owner: fetch all bookings for their listings
           const res = await axios.get("http://localhost:5000/api/bookings/owner", {
             headers: { Authorization: `Bearer ${token}` },
           });
-          // Extract unique listings
           const listingsMap = {};
           res.data.forEach((b) => {
             const listId = b.listing._id || b.listingId._id;
@@ -44,7 +40,6 @@ const MessagesPage = () => {
     fetchData();
   }, [role, token]);
 
-  // Fetch approved bookings for a listing (owner)
   const fetchBookings = async (listingId) => {
     try {
       const res = await axios.get(
@@ -57,7 +52,6 @@ const MessagesPage = () => {
     }
   };
 
-  // Fetch messages for a booking
   const fetchMessages = async (bookingId) => {
     try {
       const res = await axios.get(
@@ -124,7 +118,6 @@ const MessagesPage = () => {
           </ul>
         )}
 
-        {/* Owner side: list approved bookings */}
         {role === "listing" && selectedItem && bookings.length > 0 && (
           <>
             <h3>Approved Bookings</h3>

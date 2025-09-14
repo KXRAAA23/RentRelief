@@ -5,24 +5,19 @@ const User = require("../models/User");
 const sendEmail = require("../utils/sendEmail"); 
 const router = express.Router();
 
-// REGISTER
 router.post("/register", async (req, res) => {
   const { name, email, password, role } = req.body;
 
   try {
-    // check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
 
-    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    // create user
     const user = new User({
       name,
       email,
@@ -35,7 +30,6 @@ router.post("/register", async (req, res) => {
     });
     await user.save();
 
-    // send OTP email
     await sendEmail(
       email,
       "Verify your RentRelief account",
@@ -49,7 +43,6 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// VERIFY OTP
 router.post("/verify-otp", async (req, res) => {
   const { userId, otp } = req.body;
 
@@ -77,7 +70,6 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-// LOGIN
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 

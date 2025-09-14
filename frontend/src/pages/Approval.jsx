@@ -14,7 +14,6 @@ const AdminDashboard = () => {
           "http://localhost:5000/api/admin/pending-verifications",
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        // Filter out undefined or null users just in case
         setUsers(data.filter(u => u));
         setLoading(false);
       } catch (err) {
@@ -57,7 +56,7 @@ const AdminDashboard = () => {
   ) : (
     <div className="admin-cards-container">
       {users.map(user => {
-        if (!user) return null; // skip undefined
+        if (!user) return null; 
         return (
           <div className="admin-card" key={user._id}>
             <h3>{user.name || "No Name"}</h3>
